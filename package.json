@@ -1,0 +1,27 @@
+{
+  "name": "user-auth-system",
+  "version": "1.0.0",
+  "description": "User registration and login system with SQLite3",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^7.1.0",
+    "bcrypt": "^5.1.0",
+    "exceljs": "^4.4.0",
+    "express": "^4.18.2",
+    "path": "^0.12.7",
+    "sqlite3": "^5.1.6"
+  },
+  "keywords": [
+    "authentication",
+    "sqlite3",
+    "express",
+    "login",
+    "registration"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}

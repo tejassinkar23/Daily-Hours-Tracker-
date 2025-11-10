@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Time Tracking System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c5aa0;
+            --secondary: #6c757d;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --sidebar: #2c3e50;
+            --sidebar-hover: #34495e;
+            --header: #ffffff;
+            --card-bg: #ffffff;
+            --border: #e3e6f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fc;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Login Screen */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .login-card {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-card h2 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .login-card p {
+            color: var(--secondary);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
+            outline: none;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-primary:hover {
+            background: #254a8a;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(44, 90, 160, 0.3);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: var(--dark);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-info {
+            background: var(--info);
+            color: white;
+        }
+
+        .btn-light {
+            background: var(--light);
+            color: var(--dark);
+            border: 1px solid var(--border);
+        }
+
+        .btn-sm {
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+
+        /* Admin Panel */
+        .admin-container {
+            display: none;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 260px;
+            background: var(--sidebar);
+            color: white;
+            padding: 20px 0;
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h3 {
+            color: white;
+            font-weight: 600;
+        }
+
+        .nav-item {
+            padding: 12px 20px;
+            color: #b0b7c3;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+            cursor: pointer;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: var(--sidebar-hover);
+            color: white;
+            border-left-color: var(--primary);
+        }
+
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .main-content {
+            margin-left: 260px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: var(--header);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: var(--primary);
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+            border: none;
+        }
+
+        .card-header {
+            padding: 20px 25px;
+            background: transparent;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h3 {
+            color: var(--primary);
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .card-body {
+            padding: 25px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            border-left: 4px solid var(--primary);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card.users {
+            border-left-color: var(--info);
+        }
+
+        .stat-card.entries {
+            border-left-color: var(--success);
+        }
+
+        .stat-card.projects {
+            border-left-color: var(--warning);
+        }
+
+        .stat-card.exceeded {
+            border-left-color: var(--danger);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: var(--primary);
+            display: block;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: var(--secondary);
+            font-size: 14px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: #f8f9fc;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            align-items: end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--primary);
+            font-size: 14px;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 10px;
+            align-items: end;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th {
+            background: #f8f9fc;
+            padding: 15px 12px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--primary);
+            border-bottom: 2px solid var(--border);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        th:hover {
+            background: #e9ecef;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+        }
+
+        tr:hover {
+            background: #f8f9fc;
+        }
+
+        .exceeded-badge {
+            background: var(--danger);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-active {
+            color: var(--success);
+            font-weight: 500;
+        }
+
+        .status-inactive {
+            color: var(--secondary);
+        }
+
+        /* Projects Grid */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .project-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        .project-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .project-card.inactive {
+            opacity: 0.7;
+            background: #f8f9fa;
+        }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .project-name {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 16px;
+        }
+
+        .project-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Forms */
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .input-group .form-control {
+            flex: 1;
+        }
+
+        /* Messages */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+            }
+
+            .sidebar .nav-text {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 70px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .login-card {
+                padding: 30px 20px;
+            }
+
+            .main-content {
+                padding: 15px;
+            }
+
+            .card-body {
+                padding: 20px 15px;
+            }
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--secondary);
+        }
+
+        .loading i {
+            font-size: 2em;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        /* Sort indicators */
+        .sort-indicator {
+            margin-left: 5px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Login Screen -->
+    <div class="login-container" id="loginScreen">
+        <div class="login-card">
+            <div style="font-size: 3em; color: var(--primary); margin-bottom: 15px;">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <h2>Admin Portal</h2>
+            <p>Enter your credentials to access the dashboard</p>
+
+            <div class="form-group">
+                <label for="adminPassword"><i class="fas fa-lock"></i> Admin Password</label>
+                <input type="password" id="adminPassword" class="form-control" placeholder="Enter admin password">
+            </div>
+
+            <button class="btn btn-primary" onclick="adminLogin()">
+                <i class="fas fa-sign-in-alt"></i> Sign In
+            </button>
+
+            <div id="loginMessage" class="alert alert-error" style="display: none; margin-top: 20px;"></div>
+
+            <!-- <div style="margin-top: 25px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                <small style="color: var(--secondary);">
+                    <i class="fas fa-info-circle"></i> Default password: <strong>admin123</strong>
+                </small>
+            </div> -->
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div class="admin-container" id="adminPanel">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3><i class="fas fa-cube"></i> <span class="nav-text">TimeTracker</span></h3>
+            </div>
+            <nav>
+                <a class="nav-item active" onclick="showTab('dashboard')">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+                <a class="nav-item" onclick="showTab('users')">
+                    <i class="fas fa-users"></i>
+                    <span class="nav-text">Users Data</span>
+                </a>
+                <a class="nav-item" onclick="showTab('projects')">
+                    <i class="fas fa-project-diagram"></i>
+                    <span class="nav-text">Projects</span>
+                </a>
+                <a class="nav-item" onclick="showTab('distribution')">
+                    <i class="fas fa-chart-pie"></i>
+                    <span class="nav-text">Time Distribution</span>
+                </a>
+                <a class="nav-item" onclick="showTab('user-management')">
+                    <i class="fas fa-user-cog"></i>
+                    <span class="nav-text">User Management</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <h1 id="pageTitle">Dashboard Overview</h1>
+                <div class="header-actions">
+                    <button class="btn btn-success" onclick="exportToExcel()">
+                        <i class="fas fa-file-excel"></i> Export Excel
+                    </button>
+                    <button class="btn btn-light" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dashboard Tab -->
+            <div id="dashboard" class="tab-content">
+                <!-- Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card users">
+                        <div class="stat-number" id="totalUsers">0</div>
+                        <div class="stat-label">Total Users</div>
+                    </div>
+                    <div class="stat-card entries">
+                        <div class="stat-number" id="totalEntries">0</div>
+                        <div class="stat-label">Time Entries</div>
+                    </div>
+                    <div class="stat-card projects">
+                        <div class="stat-number" id="totalProjects">0</div>
+                        <div class="stat-label">Active Projects</div>
+                    </div>
+                    <div class="stat-card exceeded">
+                        <div class="stat-number" id="exceededEntries">0</div>
+                        <div class="stat-label">Entries > 9.5h</div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-history"></i> Recent Activity</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="recentActivity" class="loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Loading recent activity...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Data Tab -->
+            <div id="users" class="tab-content" style="display: none;">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-table"></i> All Time Entries</h3>
+                    </div>
+                    <div class="card-body">
+                        <!-- Filters -->
+                        <div class="filter-section">
+                            <div class="filter-grid">
+                                <div class="filter-group">
+                                    <label>User Filter</label>
+                                    <select id="userFilter" class="form-control">
+                                        <option value="">All Users</option>
+                                    </select>
+                                </div>
+                                <div class="filter-group">
+                                    <label>Project Filter</label>
+                                    <select id="projectFilter" class="form-control">
+                                        <option value="">All Projects</option>
+                                        <option value="komatsu">Komatsu</option>
+                                        <option value="brunswick">Brunswick</option>
+                                        <option value="abb_india">ABB India</option>
+                                        <option value="omnion">Omnion</option>
+                                        <option value="rinnai">Rinnai</option>
+                                        <option value="oshkosh">Oshkosh</option>
+                                        <option value="polaris">Polaris</option>
+                                        <option value="volvo">Volvo</option>
+                                        <option value="bridgestone">Bridgestone</option>
+                                        <option value="wartsila_uk">Wartsila UK</option>
+                                        <option value="mtu">MTU</option>
+                                        <option value="mhi">MHI</option>
+                                    </select>
+                                </div>
+                                <div class="filter-group">
+                                    <label>Date Range</label>
+                                    <input type="date" id="dateFrom" class="form-control">
+                                </div>
+                                <div class="filter-group">
+                                    <label>To</label>
+                                    <input type="date" id="dateTo" class="form-control">
+                                </div>
+                                <div class="filter-actions">
+                                    <button class="btn btn-primary" onclick="applyFilters()">
+                                        <i class="fas fa-filter"></i> Apply Filters
+                                    </button>
+                                    <button class="btn btn-light" onclick="clearFilters()">
+                                        <i class="fas fa-times"></i> Clear
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="table-container">
+                            <div id="usersDataContainer" class="loading">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <p>Loading users data...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Management Tab -->
+            <div id="user-management" class="tab-content" style="display: none;">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-users-cog"></i> User Management</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            Use this section to manage users. If a user forgets their password, you can delete their
+                            account so they can register again.
+                        </div>
+
+                        <div class="table-container">
+                            <div id="usersListContainer" class="loading">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <p>Loading users...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Projects Tab -->
+            <div id="projects" class="tab-content" style="display: none;">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-cog"></i> Project Management</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="input-group">
+                            <input type="text" id="newProject" class="form-control"
+                                placeholder="Enter new project name (e.g., Komatsu, Brunswick, etc.)">
+                            <button class="btn btn-primary" onclick="addProject()">
+                                <i class="fas fa-plus"></i> Add Project
+                            </button>
+                        </div>
+                        <div id="projectsList" class="projects-grid">
+                            <div class="loading">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <p>Loading projects...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Distribution Tab -->
+            <div id="distribution" class="tab-content" style="display: none;">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-chart-bar"></i> Time Distribution Analysis</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="filter-section">
+                            <div class="filter-grid">
+                                <div class="filter-group">
+                                    <label>User Filter</label>
+                                    <select id="distUserFilter" class="form-control">
+                                        <option value="">All Users</option>
+                                    </select>
+                                </div>
+                                <div class="filter-actions">
+                                    <button class="btn btn-primary" onclick="loadDistribution()">
+                                        <i class="fas fa-filter"></i> Apply Filter
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="distributionContainer" class="loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Loading distribution data...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Message Alert -->
+            <div id="messageAlert" class="alert" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Global data store
+        let allUsersData = [];
+        let currentProjects = [];
+        let filteredUsersData = [];
+        let currentSort = { column: '', direction: 'asc' };
+
+        // Tab management
+        function showTab(tabName) {
+            // Update active nav item
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            // Update page title
+            const titles = {
+                'dashboard': 'Dashboard Overview',
+                'users': 'Users Data Management',
+                'projects': 'Project Configuration',
+                'distribution': 'Time Distribution Analysis',
+                'user-management': 'User Management'
+            };
+            document.getElementById('pageTitle').textContent = titles[tabName];
+
+            // Show selected tab
+            document.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
+            document.getElementById(tabName).style.display = 'block';
+
+            // Load data if needed
+            if (tabName === 'users' && allUsersData.length === 0) {
+                loadUsersData();
+            } else if (tabName === 'distribution') {
+                loadDistribution();
+            } else if (tabName === 'user-management') {
+                loadUsers();
+            }
+        }
+
+        // Admin login
+        async function adminLogin() {
+            const password = document.getElementById('adminPassword').value;
+            const messageEl = document.getElementById('loginMessage');
+
+            if (!password) {
+                showMessage(messageEl, 'Please enter admin password', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/admin-login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('loginScreen').style.display = 'none';
+                    document.getElementById('adminPanel').style.display = 'block';
+                    loadAdminData();
+                } else {
+                    showMessage(messageEl, result.message, 'error');
+                }
+            } catch (error) {
+                showMessage(messageEl, 'Login failed. Please try again.', 'error');
+            }
+        }
+
+        // Load all admin data
+        async function loadAdminData() {
+            await Promise.all([
+                loadUsersData(),
+                loadProjects(),
+                updateStats()
+            ]);
+        }
+
+        // Load users data
+        async function loadUsersData() {
+            showLoading('usersDataContainer');
+
+            try {
+                const response = await fetch('/admin/users-data');
+                const result = await response.json();
+
+                if (result.success) {
+                    allUsersData = result.data;
+                    filteredUsersData = [...allUsersData];
+                    populateUserFilters();
+                    displayUsersData();
+                    updateStats();
+                }
+            } catch (error) {
+                showError('usersDataContainer', 'Failed to load users data');
+            }
+        }
+
+        // Populate user filters
+        function populateUserFilters() {
+            const userFilter = document.getElementById('userFilter');
+            const distUserFilter = document.getElementById('distUserFilter');
+
+            // Get unique users
+            const uniqueUsers = [...new Set(allUsersData
+                .filter(entry => entry.user_name)
+                .map(entry => ({ name: entry.user_name, ps: entry.ps_number })))];
+
+            userFilter.innerHTML = '<option value="">All Users</option>';
+            distUserFilter.innerHTML = '<option value="">All Users</option>';
+
+            uniqueUsers.forEach(user => {
+                const option = `<option value="${user.ps}">${user.name} (${user.ps})</option>`;
+                userFilter.innerHTML += option;
+                distUserFilter.innerHTML += option;
+            });
+        }
+
+        // Apply filters
+        function applyFilters() {
+            const userFilter = document.getElementById('userFilter').value;
+            const projectFilter = document.getElementById('projectFilter').value;
+            const dateFrom = document.getElementById('dateFrom').value;
+            const dateTo = document.getElementById('dateTo').value;
+
+            filteredUsersData = allUsersData.filter(entry => {
+                if (!entry.date) return false;
+
+                // User filter
+                if (userFilter && entry.ps_number !== userFilter) return false;
+
+                // Project filter
+                if (projectFilter && entry[projectFilter] <= 0) return false;
+
+                // Date range filter
+                if (dateFrom && entry.date < dateFrom) return false;
+                if (dateTo && entry.date > dateTo) return false;
+
+                return true;
+            });
+
+            displayUsersData();
+        }
+
+        // Clear filters
+        function clearFilters() {
+            document.getElementById('userFilter').value = '';
+            document.getElementById('projectFilter').value = '';
+            document.getElementById('dateFrom').value = '';
+            document.getElementById('dateTo').value = '';
+            filteredUsersData = [...allUsersData];
+            displayUsersData();
+        }
+
+        // Sort table
+        function sortTable(column) {
+            if (currentSort.column === column) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.column = column;
+                currentSort.direction = 'asc';
+            }
+
+            filteredUsersData.sort((a, b) => {
+                let aValue = a[column] || '';
+                let bValue = b[column] || '';
+
+                if (column === 'date') {
+                    aValue = new Date(aValue);
+                    bValue = new Date(bValue);
+                } else if (typeof aValue === 'string') {
+                    aValue = aValue.toLowerCase();
+                    bValue = bValue.toLowerCase();
+                }
+
+                if (aValue < bValue) return currentSort.direction === 'asc' ? -1 : 1;
+                if (aValue > bValue) return currentSort.direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            displayUsersData();
+        }
+
+        // Display users data
+        function displayUsersData() {
+            const container = document.getElementById('usersDataContainer');
+
+            if (filteredUsersData.length === 0) {
+                container.innerHTML = '<div class="alert alert-info">No time entries match your filters.</div>';
+                return;
+            }
+
+            // Filter entries with actual data
+            const entriesWithData = filteredUsersData.filter(entry => entry.date);
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable('user_name')">User ${getSortIndicator('user_name')}</th>
+                            <th onclick="sortTable('date')">Date ${getSortIndicator('date')}</th>
+                            <th onclick="sortTable('available_hours')">Total Hours ${getSortIndicator('available_hours')}</th>
+                            <th>Available</th>
+                            <th>Status</th>
+                            <th>Project Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            entriesWithData.forEach(entry => {
+                const totalHours = (9.5 - entry.available_hours).toFixed(1);
+                const exceeded = (9.5 - entry.available_hours) > 9.5;
+
+                html += `
+                    <tr>
+                        <td>
+                            <strong>${entry.user_name}</strong><br>
+                            <small class="text-muted">${entry.ps_number}</small>
+                        </td>
+                        <td>${new Date(entry.date).toLocaleDateString()}</td>
+                        <td><strong>${totalHours}</strong>h</td>
+                        <td>
+                            ${exceeded ? `<span class="exceeded-badge">${entry.available_hours.toFixed(1)}h</span>` :
+                        `<span style="color: var(--success);">${entry.available_hours.toFixed(1)}h</span>`}
+                        </td>
+                        <td>
+                            ${exceeded ? '<span class="exceeded-badge">Exceeded</span>' :
+                        '<span class="status-active">Normal</span>'}
+                        </td>
+                        <td>
+                            <small>${getProjectDetails(entry)}</small>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        // Get sort indicator
+        function getSortIndicator(column) {
+            if (currentSort.column !== column) return '';
+            return currentSort.direction === 'asc' ? '↑' : '↓';
+        }
+
+        // Get project details
+        function getProjectDetails(entry) {
+            const projects = [
+                { name: 'Komatsu', key: 'komatsu' },
+                { name: 'Brunswick', key: 'brunswick' },
+                { name: 'ABB India', key: 'abb_india' },
+                { name: 'Omnion', key: 'omnion' },
+                { name: 'Rinnai', key: 'rinnai' },
+                { name: 'Oshkosh', key: 'oshkosh' },
+                { name: 'Polaris', key: 'polaris' },
+                { name: 'Volvo', key: 'volvo' },
+                { name: 'Bridgestone', key: 'bridgestone' },
+                { name: 'Wartsila UK', key: 'wartsila_uk' },
+                { name: 'MTU', key: 'mtu' },
+                { name: 'MHI', key: 'mhi' }
+            ];
+
+            const activeProjects = projects.filter(p => entry[p.key] > 0);
+            return activeProjects.length > 0 ?
+                activeProjects.map(p => `<strong>${p.name}:</strong> ${entry[p.key]}h`).join('<br>') :
+                'No project hours';
+        }
+
+        // Load projects
+        async function loadProjects() {
+            showLoading('projectsList');
+
+            try {
+                const response = await fetch('/admin/projects');
+                const result = await response.json();
+
+                if (result.success) {
+                    currentProjects = result.projects;
+                    // Filter out non-billable projects from display
+                    currentProjects = currentProjects.filter(project =>
+                        !['Free Hours', 'Non-Billable Hours', 'Training Hours'].includes(project.name)
+                    );
+                    displayProjects();
+                    updateStats();
+                }
+            } catch (error) {
+                showError('projectsList', 'Failed to load projects');
+            }
+        }
+
+        // Load users for management
+        async function loadUsers() {
+            showLoading('usersListContainer');
+
+            try {
+                const response = await fetch('/admin/users');
+                const result = await response.json();
+
+                if (result.success) {
+                    displayUsers(result.users);
+                } else {
+                    showError('usersListContainer', 'Failed to load users');
+                }
+            } catch (error) {
+                showError('usersListContainer', 'Failed to load users');
+            }
+        }
+
+        // Display users in table
+        function displayUsers(users) {
+            const container = document.getElementById('usersListContainer');
+
+            if (users.length === 0) {
+                container.innerHTML = '<div class="alert alert-info">No users found.</div>';
+                return;
+            }
+
+            let html = `
+        <table>
+            <thead>
+                <tr>
+                    <th>PS Number</th>
+                    <th>Name</th>
+                    <th>Registered</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+            users.forEach(user => {
+                html += `
+            <tr>
+                <td><strong>${user.ps_number}</strong></td>
+                <td>${user.name}</td>
+                <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                <td>
+                    <button class="btn btn-sm btn-danger" onclick="deleteUser(${user.id}, '${user.name}')">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </td>
+            </tr>
+        `;
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        // Delete user with confirmation
+        async function deleteUser(userId, userName) {
+            if (!confirm(`Are you sure you want to delete user "${userName}"?\n\nThis will also delete all their time entries and they will need to register again.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/admin/users/${userId}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert(`User "${userName}" deleted successfully`, 'success');
+                    loadUsers(); // Refresh the list
+                } else {
+                    showAlert(result.message, 'error');
+                }
+            } catch (error) {
+                showAlert('Failed to delete user', 'error');
+            }
+        }
+
+        // Display projects
+        function displayProjects() {
+            const container = document.getElementById('projectsList');
+
+            if (currentProjects.length === 0) {
+                container.innerHTML = '<div class="alert alert-info">No projects configured.</div>';
+                return;
+            }
+
+            container.innerHTML = currentProjects.map(project => `
+                <div class="project-card ${project.is_active ? '' : 'inactive'}">
+                    <div class="project-header">
+                        <div class="project-name">
+                            <i class="fas fa-folder${project.is_active ? '' : '-open'}"></i>
+                            ${project.name}
+                        </div>
+                        <div class="project-actions">
+                            <button class="btn btn-sm ${project.is_active ? 'btn-warning' : 'btn-success'}" 
+                                    onclick="toggleProject(${project.id})">
+                                <i class="fas fa-${project.is_active ? 'pause' : 'play'}"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteProject(${project.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="project-status">
+                        <small class="${project.is_active ? 'status-active' : 'status-inactive'}">
+                            <i class="fas fa-circle"></i>
+                            ${project.is_active ? 'Active' : 'Inactive'}
+                        </small>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Add project
+        async function addProject() {
+            const name = document.getElementById('newProject').value.trim();
+
+            if (!name) {
+                showAlert('Please enter project name', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/admin/projects', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('newProject').value = '';
+                    loadProjects();
+                    showAlert('Project added successfully', 'success');
+                } else {
+                    showAlert(result.message, 'error');
+                }
+            } catch (error) {
+                showAlert('Failed to add project', 'error');
+            }
+        }
+
+        // Toggle project
+        async function toggleProject(projectId) {
+            try {
+                const response = await fetch(`/admin/projects/${projectId}/toggle`, {
+                    method: 'PUT'
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    loadProjects();
+                    showAlert('Project status updated', 'success');
+                }
+            } catch (error) {
+                showAlert('Failed to update project', 'error');
+            }
+        }
+
+        // Delete project
+        async function deleteProject(projectId) {
+            if (!confirm('Are you sure you want to delete this project?')) return;
+
+            try {
+                const response = await fetch(`/admin/projects/${projectId}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    loadProjects();
+                    showAlert('Project deleted successfully', 'success');
+                }
+            } catch (error) {
+                showAlert('Failed to delete project', 'error');
+            }
+        }
+
+        // Load distribution
+        async function loadDistribution() {
+            showLoading('distributionContainer');
+
+            try {
+                const userFilter = document.getElementById('distUserFilter').value;
+                let url = '/admin/project-distribution';
+                if (userFilter) {
+                    url += `?user=${userFilter}`;
+                }
+
+                const response = await fetch(url);
+                const result = await response.json();
+
+                if (result.success) {
+                    displayDistribution(result.distribution);
+                }
+            } catch (error) {
+                showError('distributionContainer', 'Failed to load distribution data');
+            }
+        }
+
+        // Display distribution
+        function displayDistribution(distribution) {
+            const container = document.getElementById('distributionContainer');
+
+            if (distribution.length === 0) {
+                container.innerHTML = '<div class="alert alert-info">No distribution data available.</div>';
+                return;
+            }
+
+            let html = `
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Total Hours</th>
+                                <th>Entries</th>
+                                <th>Project Breakdown</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            distribution.forEach(user => {
+                const totalHours = calculateUserTotalHours(user);
+                html += `
+                    <tr>
+                        <td>
+                            <strong>${user.user_name}</strong><br>
+                            <small class="text-muted">${user.ps_number}</small>
+                        </td>
+                        <td><strong>${totalHours.toFixed(1)}</strong>h</td>
+                        <td>${user.entry_count}</td>
+                        <td>
+                            <small>${getUserProjectBreakdown(user)}</small>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        }
+
+        // Calculate user total hours
+        function calculateUserTotalHours(user) {
+            const projects = ['komatsu', 'brunswick', 'abb_india', 'omnion', 'rinnai', 'oshkosh',
+                'polaris', 'volvo', 'bridgestone', 'wartsila_uk', 'mtu', 'mhi',
+                'free_hours', 'non_billable', 'training'];
+            return projects.reduce((total, project) => total + (user[project] || 0), 0);
+        }
+
+        // Get user project breakdown
+        function getUserProjectBreakdown(user) {
+            const projects = [
+                { name: 'Komatsu', key: 'komatsu' },
+                { name: 'Brunswick', key: 'brunswick' },
+                { name: 'ABB India', key: 'abb_india' },
+                { name: 'Omnion', key: 'omnion' },
+                { name: 'Rinnai', key: 'rinnai' },
+                { name: 'Oshkosh', key: 'oshkosh' },
+                { name: 'Polaris', key: 'polaris' },
+                { name: 'Volvo', key: 'volvo' },
+                { name: 'Bridgestone', key: 'bridgestone' },
+                { name: 'Wartsila UK', key: 'wartsila_uk' },
+                { name: 'MTU', key: 'mtu' },
+                { name: 'MHI', key: 'mhi' }
+            ];
+
+            const activeProjects = projects.filter(p => user[p.key] > 0);
+            return activeProjects.length > 0 ?
+                activeProjects.map(p => `<strong>${p.name}:</strong> ${user[p.key]}h`).join('<br>') :
+                'No project hours';
+        }
+
+        // Update statistics
+        function updateStats() {
+            // Total users (unique)
+            const uniqueUsers = new Set(allUsersData.map(entry => entry.user_id)).size;
+            document.getElementById('totalUsers').textContent = uniqueUsers;
+
+            // Total entries
+            const totalEntries = allUsersData.filter(entry => entry.date).length;
+            document.getElementById('totalEntries').textContent = totalEntries;
+
+            // Total projects
+            const activeProjects = currentProjects.filter(p => p.is_active).length;
+            document.getElementById('totalProjects').textContent = activeProjects;
+
+            // Exceeded entries
+            const exceededEntries = allUsersData.filter(entry =>
+                entry.date && (9.5 - entry.available_hours) > 9.5
+            ).length;
+            document.getElementById('exceededEntries').textContent = exceededEntries;
+        }
+
+        // Export to Excel
+        function exportToExcel() {
+            window.open('/admin/export-excel', '_blank');
+        }
+
+        // Logout
+        function logout() {
+            document.getElementById('adminPanel').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('adminPassword').value = '';
+        }
+
+        // Utility functions
+        function showLoading(containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = `
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading data...</p>
+                </div>
+            `;
+        }
+
+        function showError(containerId, message) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = `
+                <div class="alert alert-error">
+                    <i class="fas fa-exclamation-triangle"></i> ${message}
+                </div>
+            `;
+        }
+
+        function showAlert(message, type) {
+            const alert = document.getElementById('messageAlert');
+            alert.textContent = message;
+            alert.className = `alert alert-${type}`;
+            alert.style.display = 'block';
+
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+
+        function showMessage(element, message, type) {
+            element.textContent = message;
+            element.className = `alert alert-${type}`;
+            element.style.display = 'block';
+        }
+
+        // Event listeners
+        document.getElementById('adminPassword').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                adminLogin();
+            }
+        });
+
+        document.getElementById('newProject').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                addProject();
+            }
+        });
+
+        // Set default dates for filters
+        const today = new Date();
+        const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+        document.getElementById('dateFrom').value = firstDay.toISOString().split('T')[0];
+        document.getElementById('dateTo').value = today.toISOString().split('T')[0];
+    </script>
+</body>
+
+</html>

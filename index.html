@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Tracking System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c5aa0;
+            --secondary: #6c757d;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --border: #e3e6f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .auth-card {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 3em;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .auth-card h1 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-weight: 600;
+            font-size: 1.8em;
+        }
+
+        .auth-card p {
+            color: var(--secondary);
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-section {
+            display: block;
+        }
+
+        .form-section.hidden {
+            display: none;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
+            outline: none;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #254a8a;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(44, 90, 160, 0.3);
+        }
+
+        .btn-light {
+            background: var(--light);
+            color: var(--dark);
+            border: 1px solid var(--border);
+        }
+
+        .btn-light:hover {
+            background: #e9ecef;
+        }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .auth-switch a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .auth-switch a:hover {
+            color: #254a8a;
+            text-decoration: underline;
+        }
+
+        .admin-link {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+
+        .admin-link a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .admin-link a:hover {
+            color: #ffd700;
+            transform: translateY(-1px);
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .input-icon {
+            position: relative;
+        }
+
+        .input-icon i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary);
+        }
+
+        .input-icon .form-control {
+            padding-left: 45px;
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--secondary);
+            cursor: pointer;
+            padding: 5px;
+            transition: color 0.3s;
+        }
+
+        .password-toggle:hover {
+            color: var(--primary);
+        }
+
+        .input-icon .form-control {
+            padding-right: 45px;
+        }
+
+        @media (max-width: 576px) {
+            .auth-card {
+                padding: 30px 20px;
+            }
+            
+            .logo {
+                font-size: 2.5em;
+            }
+            
+            .auth-card h1 {
+                font-size: 1.5em;
+            }
+        }
+
+        .welcome-animation {
+            animation: welcomePop 0.6s ease-out;
+        }
+
+        @keyframes welcomePop {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card welcome-animation">
+            <div class="logo">
+                <i class="fas fa-clock"></i>
+            </div>
+            <h1>Time Tracking System</h1>
+            <p>Track your billable hours efficiently</p>
+
+            <!-- Login Form -->
+            <div id="login-section" class="form-section">
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="login-ps-number"><i class="fas fa-id-card"></i> PS Number</label>
+                        <div class="input-icon">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="login-ps-number" name="ps_number" class="form-control" placeholder="Enter your PS number" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password"><i class="fas fa-lock"></i> Password</label>
+                        <div class="input-icon password-container">
+                            <i class="fas fa-key"></i>
+                            <input type="password" id="login-password" name="password" class="form-control" placeholder="Enter your password" required>
+                            <button type="button" class="password-toggle" onclick="togglePassword('login-password', 'login-eye-icon')">
+                                <i id="login-eye-icon" class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-sign-in-alt"></i> Sign In
+                    </button>
+                </form>
+                <div id="login-message" class="message"></div>
+                <div class="auth-switch">
+                    <p>Don't have an account? <a href="#" id="show-register">Register here</a></p>
+                </div>
+            </div>
+
+            <!-- Registration Form -->
+            <div id="register-section" class="form-section hidden">
+                <form id="register-form">
+                    <div class="form-group">
+                        <label for="register-ps-number"><i class="fas fa-id-card"></i> PS Number</label>
+                        <div class="input-icon">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="register-ps-number" name="ps_number" class="form-control" placeholder="Enter your PS number" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-name"><i class="fas fa-user-circle"></i> Full Name</label>
+                        <div class="input-icon">
+                            <i class="fas fa-signature"></i>
+                            <input type="text" id="register-name" name="name" class="form-control" placeholder="Enter your full name" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password"><i class="fas fa-lock"></i> Password</label>
+                        <div class="input-icon password-container">
+                            <i class="fas fa-key"></i>
+                            <input type="password" id="register-password" name="password" class="form-control" placeholder="Create a password" required>
+                            <button type="button" class="password-toggle" onclick="togglePassword('register-password', 'register-eye-icon')">
+                                <i id="register-eye-icon" class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i> Create Account
+                    </button>
+                </form>
+                <div id="register-message" class="message"></div>
+                <div class="auth-switch">
+                    <p>Already have an account? <a href="#" id="show-login">Sign in here</a></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-link">
+            <a href="/admin">
+                <i class="fas fa-shield-alt"></i>
+                Admin Portal
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Password visibility toggle function
+        function togglePassword(passwordFieldId, eyeIconId) {
+            const passwordField = document.getElementById(passwordFieldId);
+            const eyeIcon = document.getElementById(eyeIconId);
+            
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                eyeIcon.className = 'fas fa-eye-slash';
+                eyeIcon.title = 'Hide password';
+            } else {
+                passwordField.type = 'password';
+                eyeIcon.className = 'fas fa-eye';
+                eyeIcon.title = 'Show password';
+            }
+        }
+
+        // Navigation
+        document.getElementById('show-register').addEventListener('click', function (e) {
+            e.preventDefault();
+            document.getElementById('login-section').classList.add('hidden');
+            document.getElementById('register-section').classList.remove('hidden');
+            clearMessages();
+        });
+
+        document.getElementById('show-login').addEventListener('click', function (e) {
+            e.preventDefault();
+            document.getElementById('register-section').classList.add('hidden');
+            document.getElementById('login-section').classList.remove('hidden');
+            clearMessages();
+        });
+
+        // Login form
+        document.getElementById('login-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const data = {
+                ps_number: formData.get('ps_number'),
+                password: formData.get('password')
+            };
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Store user data and redirect to dashboard
+                    localStorage.setItem('currentUser', JSON.stringify(result.user));
+                    showMessage('login-message', 'Login successful! Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 1000);
+                } else {
+                    showMessage('login-message', result.message, 'error');
+                }
+            } catch (error) {
+                showMessage('login-message', 'Login failed. Please try again.', 'error');
+            }
+        });
+
+        // Registration form
+        document.getElementById('register-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const data = {
+                ps_number: formData.get('ps_number'),
+                name: formData.get('name'),
+                password: formData.get('password')
+            };
+
+            try {
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showMessage('register-message', result.message, 'success');
+                    setTimeout(() => {
+                        document.getElementById('register-section').classList.add('hidden');
+                        document.getElementById('login-section').classList.remove('hidden');
+                        document.getElementById('register-form').reset();
+                        clearMessages();
+                    }, 2000);
+                } else {
+                    showMessage('register-message', result.message, 'error');
+                }
+            } catch (error) {
+                showMessage('register-message', 'Registration failed. Please try again.', 'error');
+            }
+        });
+
+        function showMessage(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `message ${type}`;
+        }
+
+        function clearMessages() {
+            document.getElementById('login-message').textContent = '';
+            document.getElementById('login-message').className = 'message';
+            document.getElementById('register-message').textContent = '';
+            document.getElementById('register-message').className = 'message';
+        }
+
+        // Add enter key support
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const activeForm = document.querySelector('.form-section:not(.hidden) form');
+                if (activeForm) {
+                    activeForm.dispatchEvent(new Event('submit'));
+                }
+            }
+        });
+    </script>
+</body>
+</html>

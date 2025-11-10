@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Tracking Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-logout {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .time-entry-form {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ecf0f1;
+            border-radius: 8px;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        input[readonly] {
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+        }
+
+        .summary {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #ecf0f1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #2c3e50;
+        }
+
+        .close {
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #7f8c8d;
+        }
+
+        .close:hover {
+            color: #34495e;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .entry-item {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .entry-date {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .entry-hours {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            font-size: 14px;
+        }
+
+        .hour-item {
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 id="welcome-message">Time Tracking Dashboard</h1>
+            <div class="header-actions">
+                <button id="view-entries-btn" class="btn-secondary">View My Entries</button>
+                <button id="logout-btn" class="btn-logout">Logout</button>
+            </div>
+        </div>
+
+        <div class="time-entry-form">
+            <h2>Time Entry Form</h2>
+
+            <div class="form-group">
+                <label for="date">Date:</label>
+                <input type="date" id="date" required>
+            </div>
+
+            <div class="form-section">
+                <h3>Billable Projects</h3>
+                <div class="projects-grid">
+                    <div class="form-group">
+                        <label for="komatsu">Komatsu:</label>
+                        <input type="number" id="komatsu" step="0.5" min="0"   placeholder="0"
+                            oninput="calculateHours()">
+                    </div>
+                    <div class="form-group">
+                        <label for="brunswick">Brunswick:</label>
+                        <input type="number" id="brunswick" step="0.5" min="0"   placeholder="0"
+                            oninput="calculateHours()">
+                    </div>
+                    <div class="form-group">
+                        <label for="abb_india">ABB India:</label>
+                        <input type="number" id="abb_india" step="0.5" min="0"   placeholder="0"
+                            oninput="calculateHours()">
+                    </div>
+                    <div class="form-group">
+                        <label for="omnion">Omnion:</label>
+                        <input type="number" id="omnion" step="0.5" min="0"   placeholder="0"
+                            oninput="calculateHours()">
+                    </div>
+                    <div class="form-group">
+                        <label for="rinnai">Rinnai:</label>
+                        <input type="number" id="rinnai" step="0.5" min="0"   placeholder="0"
+                            oninput="calculateHours()">
+                    </div>
+                    <div class="form-group">
+                        <label for="oshkosh">Oshkosh:</label>
+                        <input type="number" id="oshkosh" step="0.5" min="0"   placeholder="0"
+                            oninput="calculateHours()">
+                    </div>
+                    <div class="form-group">
+                        <label for="polaris">Polaris:</label>
+                        <input type="number" id="polaris" step="0.5" min="0"   placeholder="0"
+                            oninput="calculateHours()">
+                    </div>
+                    <div class="form-group">
+                        <label for="volvo">Volvo:</label>
+                        <input type="number" id="volvo" step="0.5" min="0"   placeholder="0"
+                            oninput="calculateHours()">
+                    </div>
+                    <div class="form-group">
+                        <label for="bridgestone">Bridgestone:</label>
+                        <input type="number" id="bridgestone" step="0.5" min="0"   placeholder="0"
+                            oninput="calculateHours()">
+                    </div>
+                    <div class="form-group">
+                        <label for="wartsila_uk">Wartsila UK:</label>
+                        <input type="number" id="wartsila_uk" step="0.5" min="0"   placeholder="0"
+                            oninput="calculateHours()">
+                    </div>
+                    <div class="form-group">
+                        <label for="mtu">MTU:</label>
+                        <input type="number" id="mtu" step="0.5" min="0"   placeholder="0"
+                            oninput="calculateHours()">
+                    </div>
+                    <div class="form-group">
+                        <label for="mhi">MHI:</label>
+                        <input type="number" id="mhi" step="0.5" min="0"   placeholder="0"
+                            oninput="calculateHours()">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>Other Hours</h3>
+                <div class="projects-grid">
+                    <div class="form-group">
+                        <label for="free_hours">Free Hours:</label>
+                        <input type="number" id="free_hours" step="0.5" min="0"   placeholder="0"
+                            oninput="calculateHours()">
+                    </div>
+                    <div class="form-group">
+                        <label for="non_billable_hours">Non-Billable Hours:</label>
+                        <input type="number" id="non_billable_hours" step="0.5" min="0"   placeholder="0"
+                            oninput="calculateHours()">
+                    </div>
+                    <div class="form-group">
+                        <label for="training_hours">Training Hours:</label>
+                        <input type="number" id="training_hours" step="0.5" min="0"   placeholder="0"
+                            oninput="calculateHours()">
+                    </div>
+                    <div class="form-group">
+                        <label for="available_hours">Available Hours:</label>
+                        <input type="number" id="available_hours" step="0.5" readonly placeholder="8">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="form-group">
+                    <label for="remarks">Non Billable/Training Remarks:</label>
+                    <textarea id="remarks" rows="3" placeholder="Enter description..."></textarea>
+                </div>
+            </div>
+
+            <div class="summary">
+                <h3>Summary</h3>
+                <div class="summary-item">
+                    <span>Total Billable Hours:</span>
+                    <span id="total-billable">0</span>
+                </div>
+                <div class="summary-item">
+                    <span>Total Other Hours:</span>
+                    <span id="total-other">0</span>
+                </div>
+                <div class="summary-item">
+                    <span>Grand Total:</span>
+                    <span id="grand-total">0</span>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button onclick="saveTimeEntry()" class="btn-primary">Save Time Entry</button>
+                <button onclick="clearForm()" class="btn-secondary">Clear Form</button>
+            </div>
+        </div>
+
+        <div id="message" class="message"></div>
+
+        <!-- Time Entries Modal -->
+        <div id="entries-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>My Time Entries</h2>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div id="entries-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check authentication
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        if (!currentUser) {
+            window.location.href = '/';
+        } else {
+            document.getElementById('welcome-message').textContent = `Hello, ${currentUser.name}! - Time Tracking Dashboard`;
+        }
+
+        // Set default date
+        document.getElementById('date').value = new Date().toISOString().split('T')[0];
+
+        // Load existing entry for today
+        loadTimeEntry();
+
+        // Event listeners
+        document.getElementById('view-entries-btn').addEventListener('click', showEntries);
+        document.getElementById('logout-btn').addEventListener('click', logout);
+        document.querySelector('.close').addEventListener('click', closeModal);
+        // In your public/dashboard.html, replace the date change event listener
+        document.getElementById('date').addEventListener('change', function () {
+            // Reset the form when date changes
+            clearForm(false); // Don't clear the date field
+            // Don't load existing entry - start fresh
+        });
+        
+        // Auto-calculation function
+        function calculateHours() {
+            const billableProjects = [
+                'komatsu', 'brunswick', 'abb_india', 'omnion', 'rinnai',
+                'oshkosh', 'polaris', 'volvo', 'bridgestone', 'wartsila_uk', 'mtu', 'mhi'
+            ];
+
+            let totalBillable = 0;
+            billableProjects.forEach(project => {
+                const value = parseFloat(document.getElementById(project).value) || 0;
+                totalBillable += value;
+            });
+
+            const freeHours = parseFloat(document.getElementById('free_hours').value) || 0;
+            const nonBillableHours = parseFloat(document.getElementById('non_billable_hours').value) || 0;
+            const trainingHours = parseFloat(document.getElementById('training_hours').value) || 0;
+
+            const totalOther = freeHours + nonBillableHours + trainingHours;
+            const grandTotal = totalBillable + totalOther;
+
+            // Calculate available hours - no negative values
+            // If total hours <= 9.5, available = 9.5 - total
+            // If total hours > 9.5, available starts from 10, 10.5, 11, etc.
+            let availableHours;
+            if (grandTotal <= 9.5) {
+                availableHours = 9.5 - grandTotal;
+            } else {
+                // For every 0.5 hours over 9.5, add 0.5 to available starting from 10
+                const overHours = grandTotal - 9.5;
+                availableHours = 10 + (Math.ceil(overHours / 0.5) * 0.5) - overHours;
+            }
+
+            // Update displays
+            document.getElementById('total-billable').textContent = totalBillable.toFixed(1);
+            document.getElementById('total-other').textContent = totalOther.toFixed(1);
+            document.getElementById('grand-total').textContent = grandTotal.toFixed(1);
+            document.getElementById('available_hours').value = availableHours.toFixed(1);
+
+            // Professional color coding
+            const availableHoursInput = document.getElementById('available_hours');
+            if (grandTotal < 9.5) {
+                // Blue for under 9.5
+                availableHoursInput.style.backgroundColor = '#d1ecf1';
+                availableHoursInput.style.color = '#0c5460';
+                availableHoursInput.style.border = '2px solid #bee5eb';
+                availableHoursInput.style.fontWeight = 'normal';
+            } else if (grandTotal === 9.5) {
+                // Green for exactly 9.5
+                availableHoursInput.style.backgroundColor = '#d4edda';
+                availableHoursInput.style.color = '#155724';
+                availableHoursInput.style.border = '2px solid #c3e6cb';
+                availableHoursInput.style.fontWeight = 'bold';
+            } else {
+                // Amber for over 9.5
+                availableHoursInput.style.backgroundColor = '#fff3cd';
+                availableHoursInput.style.color = '#856404';
+                availableHoursInput.style.border = '2px solid #ffc107';
+                availableHoursInput.style.fontWeight = 'bold';
+            }
+        }
+
+        async function loadTimeEntry() {
+            const date = document.getElementById('date').value;
+            if (!date) return;
+
+            try {
+                const response = await fetch(`/time-entry/${currentUser.id}/${date}`);
+                const result = await response.json();
+
+                if (result.success && result.entry) {
+                    // Populate form with existing data
+                    const fields = [
+                        'komatsu', 'brunswick', 'abb_india', 'omnion', 'rinnai', 'oshkosh',
+                        'polaris', 'volvo', 'bridgestone', 'wartsila_uk', 'mtu', 'mhi',
+                        'free_hours', 'non_billable_hours', 'training_hours', 'remarks'
+                    ];
+
+                    fields.forEach(field => {
+                        const element = document.getElementById(field);
+                        if (element && result.entry[field] !== undefined && result.entry[field] !== null) {
+                            element.value = result.entry[field];
+                        }
+                    });
+
+                    calculateHours();
+                    showMessage('Loaded existing entry for this date', 'success');
+                }
+            } catch (error) {
+                console.error('Error loading time entry:', error);
+            }
+        }
+
+        async function saveTimeEntry() {
+            const date = document.getElementById('date').value;
+            if (!date) {
+                showMessage('Please select a date', 'error');
+                return;
+            }
+
+            const data = {
+                userId: currentUser.id,
+                date: date,
+                komatsu: parseFloat(document.getElementById('komatsu').value) || 0,
+                brunswick: parseFloat(document.getElementById('brunswick').value) || 0,
+                abb_india: parseFloat(document.getElementById('abb_india').value) || 0,
+                omnion: parseFloat(document.getElementById('omnion').value) || 0,
+                rinnai: parseFloat(document.getElementById('rinnai').value) || 0,
+                oshkosh: parseFloat(document.getElementById('oshkosh').value) || 0,
+                polaris: parseFloat(document.getElementById('polaris').value) || 0,
+                volvo: parseFloat(document.getElementById('volvo').value) || 0,
+                bridgestone: parseFloat(document.getElementById('bridgestone').value) || 0,
+                wartsila_uk: parseFloat(document.getElementById('wartsila_uk').value) || 0,
+                mtu: parseFloat(document.getElementById('mtu').value) || 0,
+                mhi: parseFloat(document.getElementById('mhi').value) || 0,
+                free_hours: parseFloat(document.getElementById('free_hours').value) || 0,
+                non_billable_hours: parseFloat(document.getElementById('non_billable_hours').value) || 0,
+                training_hours: parseFloat(document.getElementById('training_hours').value) || 0,
+                remarks: document.getElementById('remarks').value
+            };
+
+            // Validate total hours
+            const availableHours = parseFloat(document.getElementById('available_hours').value);
+
+            try {
+                const response = await fetch('/save-time-entry', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showMessage('Time entry saved successfully!', 'success');
+                } else {
+                    showMessage(result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error saving time entry:', error);
+                showMessage('Failed to save time entry', 'error');
+            }
+        }
+
+        function clearForm(clearDate = true) {
+            const inputs = document.querySelectorAll('input[type="number"]');
+            inputs.forEach(input => {
+                if (input.id !== 'available_hours') {
+                    input.value = '';
+                }
+            });
+            document.getElementById('remarks').value = '';
+
+            if (clearDate) {
+                // Set default date to today
+                document.getElementById('date').value = new Date().toISOString().split('T')[0];
+            }
+
+            calculateHours();
+            showMessage('Form cleared', 'success');
+        }
+
+        async function showEntries() {
+            try {
+                const response = await fetch(`/time-entries/${currentUser.id}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    displayEntries(result.entries);
+                    document.getElementById('entries-modal').style.display = 'block';
+                } else {
+                    showMessage('Failed to load entries', 'error');
+                }
+            } catch (error) {
+                console.error('Error loading entries:', error);
+                showMessage('Failed to load entries', 'error');
+            }
+        }
+
+        function displayEntries(entries) {
+            const container = document.getElementById('entries-list');
+
+            if (entries.length === 0) {
+                container.innerHTML = '<p>No time entries found.</p>';
+                return;
+            }
+
+            container.innerHTML = entries.map(entry => `
+                <div class="entry-item">
+                    <div class="entry-header">
+                        <span class="entry-date">${new Date(entry.date).toLocaleDateString()}</span>
+                        <span class="available-hours">Available: ${entry.available_hours} hrs</span>
+                    </div>
+                    <div class="entry-hours">
+                        <div class="hour-item"><span>Billable Total:</span> <span>${calculateBillableTotal(entry)} hrs</span></div>
+                        <div class="hour-item"><span>Non-Billable:</span> <span>${entry.non_billable_hours} hrs</span></div>
+                        <div class="hour-item"><span>Training:</span> <span>${entry.training_hours} hrs</span></div>
+                        <div class="hour-item"><span>Free:</span> <span>${entry.free_hours} hrs</span></div>
+                    </div>
+                    ${entry.remarks ? `<div class="entry-remarks"><strong>Remarks:</strong> ${entry.remarks}</div>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function calculateBillableTotal(entry) {
+            const billableFields = [
+                'komatsu', 'brunswick', 'abb_india', 'omnion', 'rinnai', 'oshkosh',
+                'polaris', 'volvo', 'bridgestone', 'wartsila_uk', 'mtu', 'mhi'
+            ];
+
+            return billableFields.reduce((total, field) => total + (parseFloat(entry[field]) || 0), 0);
+        }
+
+        function closeModal() {
+            document.getElementById('entries-modal').style.display = 'none';
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = '/';
+        }
+
+        function showMessage(message, type) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = message;
+            messageEl.className = `message ${type}`;
+            messageEl.style.display = 'block';
+
+            setTimeout(() => {
+                messageEl.style.display = 'none';
+            }, 5000);
+        }
+
+        // Close modal when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target === document.getElementById('entries-modal')) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+
+</html>
